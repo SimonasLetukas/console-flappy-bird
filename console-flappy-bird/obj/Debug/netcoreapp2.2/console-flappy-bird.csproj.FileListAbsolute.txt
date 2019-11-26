@@ -1,0 +1,11 @@
+C:\Uni\console-flappy-bird\console-flappy-bird\bin\Debug\netcoreapp2.2\console-flappy-bird.deps.json
+C:\Uni\console-flappy-bird\console-flappy-bird\bin\Debug\netcoreapp2.2\console-flappy-bird.runtimeconfig.json
+C:\Uni\console-flappy-bird\console-flappy-bird\bin\Debug\netcoreapp2.2\console-flappy-bird.runtimeconfig.dev.json
+C:\Uni\console-flappy-bird\console-flappy-bird\bin\Debug\netcoreapp2.2\console-flappy-bird.dll
+C:\Uni\console-flappy-bird\console-flappy-bird\bin\Debug\netcoreapp2.2\console-flappy-bird.pdb
+C:\Uni\console-flappy-bird\console-flappy-bird\obj\Debug\netcoreapp2.2\console-flappy-bird.csprojAssemblyReference.cache
+C:\Uni\console-flappy-bird\console-flappy-bird\obj\Debug\netcoreapp2.2\console-flappy-bird.csproj.CoreCompileInputs.cache
+C:\Uni\console-flappy-bird\console-flappy-bird\obj\Debug\netcoreapp2.2\console-flappy-bird.AssemblyInfoInputs.cache
+C:\Uni\console-flappy-bird\console-flappy-bird\obj\Debug\netcoreapp2.2\console-flappy-bird.AssemblyInfo.cs
+C:\Uni\console-flappy-bird\console-flappy-bird\obj\Debug\netcoreapp2.2\console-flappy-bird.dll
+C:\Uni\console-flappy-bird\console-flappy-bird\obj\Debug\netcoreapp2.2\console-flappy-bird.pdb
