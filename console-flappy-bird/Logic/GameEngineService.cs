@@ -2,12 +2,41 @@
 {
     class GameEngineService
     {
-        public bool HasCollided ()
+        private readonly int birdHorizontalPosition;
+        private readonly int pipeThickness;
+        private readonly int pipeGapSize;
+
+        public GameEngineService (int birdHorizontalPosition, int pipeThickness, int pipeGapSize)
         {
-            return true;
+            this.birdHorizontalPosition = birdHorizontalPosition;
+            this.pipeThickness = pipeThickness;
+            this.pipeGapSize = pipeGapSize;
         }
 
-        public char[,] GetRender ()
+        public bool HasCollided (EnvironmentController environment, BirdController bird)
+        {
+            var pipes = environment.GetCurrentPipes();
+            var birdVerticalPosition = bird.GetPosition();
+            foreach (var pipe in pipes)
+            {
+                var pipeHorizontalEndLine = pipe.HorizontalPosition + pipeThickness;
+
+                // Check horizontal collision
+                if (birdHorizontalPosition >= pipe.HorizontalPosition && birdHorizontalPosition < pipeHorizontalEndLine)
+                {
+                    var pipeVerticalEndLine = pipe.GapStart + pipeGapSize;
+
+                    // Check vertical collision
+                    if (birdVerticalPosition < pipe.GapStart && birdVerticalPosition >= pipeVerticalEndLine)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public char[,] GetRender (EnvironmentController environment, BirdController bird)
         {
             return new char[1,1];
         }

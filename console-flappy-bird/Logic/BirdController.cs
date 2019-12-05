@@ -6,7 +6,11 @@ namespace console_flappy_bird.Logic
     class BirdController
     {
         private Bird bird;
-        public BirdController (int position)
+        private readonly int deltaTime;
+        private readonly int fallingConstant;
+        private readonly int jumpConstant;
+
+        public BirdController (int position, int deltaTime, int fallingConstant, int jumpConstant)
         {
             bird = new Bird
             {
@@ -15,9 +19,12 @@ namespace console_flappy_bird.Logic
                 Position = position,
                 Velocity = 0
             };
+            this.deltaTime = deltaTime;
+            this.fallingConstant = fallingConstant;
+            this.jumpConstant = jumpConstant;
         }
 
-        public void Update (bool jumpFlag, int deltaTime, int fallingConstant, int jumpConstant)
+        public void Update (bool jumpFlag)
         {
             if (jumpFlag)
             {

@@ -1,4 +1,5 @@
-﻿using console_flappy_bird.Interfaces;
+﻿using console_flappy_bird.Extensions;
+using console_flappy_bird.Interfaces;
 using console_flappy_bird.Models;
 using System;
 using System.Diagnostics;
@@ -16,6 +17,9 @@ namespace console_flappy_bird.Logic
         const int gravityConstant = 10;
         const int jumpAmount = 15;
         const int birdHorizontalPosition = 5;
+        const int pipeGapSize = 5;
+        const int pipePeriodLength = 10;
+        const int pipeThickness = 2;
 
         // Variables
         int oldHighscore;
@@ -30,6 +34,8 @@ namespace console_flappy_bird.Logic
         Timer acceleratedUpdate;
         Stopwatch gameTime;
         BirdController bird;
+        EnvironmentController environment;
+        GameEngineService service;
 
         public void StartGame ()
         {
@@ -61,6 +67,7 @@ namespace console_flappy_bird.Logic
             renderFlag = true;
             random = new Random();
             gameTime = new Stopwatch();
+            service = new GameEngineService(birdHorizontalPosition - 1, pipeThickness, pipeGapSize);
 
             // TODO import best score from file
             oldHighscore = 100;
@@ -151,7 +158,8 @@ namespace console_flappy_bird.Logic
                 username = "User" + random.Next(10000, 99999).ToString() + "_" + DateTime.Now.ToString("yy/MM/dd");
             }
 
-            bird = new BirdController(screenHeight / 2);
+            bird = new BirdController(screenHeight / 2, refreshInterval, gravityConstant, jumpAmount);
+            environment = new EnvironmentController(screenWidth, screenHeight, pipeGapSize, pipePeriodLength, pipeThickness);
 
             gameTime.Start();
 
@@ -188,12 +196,19 @@ namespace console_flappy_bird.Logic
         {
             // TODO: Call the game engine service, generate request model with environment and bird and all other necessary parameters
             // Then draw everything in this method from the returned array of chars. 
+            Console.Clear();
+            var screen = service.GetRender(environment, bird);
+            for (var row = 0; row < screenHeight; row++)
+            {
+                var line = screen.GetRow(row);
+                Console.WriteLine(line);
+            }
         }
 
         private bool HasCollided ()
         {
-            // TODO: Call the game engine service and provide it with bird position and environment object
-            return false;
+            var hasCollided = service.HasCollided(environment, bird);
+            return hasCollided;
         }
 
         private void HandleInput ()
@@ -209,13 +224,13 @@ namespace console_flappy_bird.Logic
 
         private void OnFixedUpdate (object sender, EventArgs args)
         {
-            bird.Update(flyUpFlag, refreshInterval, gravityConstant, jumpAmount);
+            bird.Update(flyUpFlag);
             renderFlag = true;
         }
 
         private void OnUpdate (object sender, EventArgs args)
         {
-            // TODO: Update world
+            environment.Update();
             renderFlag = true;
         }
 
