@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace console_flappy_bird.Logic
 {
-    class EnvironmentController
+    class EnvironmentController : ICloneable
     {
         private Queue<PipeColumn> pipes;
         private readonly Random random;
@@ -62,6 +62,28 @@ namespace console_flappy_bird.Logic
         {
             pipe.HorizontalPosition = screenWidth;
             pipe.GapStart = random.Next(screenHeight - gapSize);
+        }
+
+        public object Clone()
+        {
+            var copy = new EnvironmentController(pipes, maxPipes, screenWidth, screenHeight, gapSize, periodLength, thickness);
+            return copy;
+        }
+
+        private EnvironmentController(Queue<PipeColumn> pipes, int maxPipes, int screenWidth, int screenHeight, int gapSize, int periodLength, int thickness)
+        {
+            this.pipes = new Queue<PipeColumn>();
+            foreach (var pipe in pipes)
+            {
+                this.pipes.Enqueue(pipe);
+            }
+            random = new Random();
+            this.gapSize = gapSize;
+            this.thickness = thickness;
+            this.periodLength = periodLength;
+            this.screenWidth = screenWidth;
+            this.screenHeight = screenHeight;
+            this.maxPipes = maxPipes;
         }
     }
 }

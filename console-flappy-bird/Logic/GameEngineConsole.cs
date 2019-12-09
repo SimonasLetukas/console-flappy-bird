@@ -14,12 +14,28 @@ namespace console_flappy_bird.Logic
         const int screenWidth = 80;
         const int screenHeight = 15;
         const int refreshInterval = 100;
-        const int gravityConstant = 10;
-        const int jumpAmount = 15;
-        const int birdHorizontalPosition = 5;
+
         const int pipeGapSize = 5;
         const int pipePeriodLength = 10;
         const int pipeThickness = 2;
+        const char pipeLeftTopSymbol = '⌊';
+        const char pipeRightTopSymbol = '⌋';
+        const char pipeLeftBottomSymbol = '⌈';
+        const char pipeRightBottomSymbol = '⌉';
+        const char pipeHoleSymbol = '=';
+        const char pipeBodySymbol = '|';
+
+        const int cloudSparsingRate = 10;
+        const int cloudMaxDensity = 5;
+        const char cloudSymbol = '~';
+
+        const int gravityConstant = 10;
+        const int jumpAmount = 15;
+        const int birdHorizontalPosition = 5;
+        const char birdUpSymbol = '^';
+        const char birdSideSymbol = '>';
+        const char birdDownSymbol = 'v';
+        
 
         // Variables
         int oldHighscore;
@@ -67,7 +83,9 @@ namespace console_flappy_bird.Logic
             renderFlag = true;
             random = new Random();
             gameTime = new Stopwatch();
-            service = new GameEngineService(birdHorizontalPosition - 1, pipeThickness, pipeGapSize);
+
+            var serviceModel = PopulateServiceModel();
+            service = new GameEngineService(serviceModel);
 
             // TODO import best score from file
             oldHighscore = 100;
@@ -158,7 +176,7 @@ namespace console_flappy_bird.Logic
                 username = "User" + random.Next(10000, 99999).ToString() + "_" + DateTime.Now.ToString("yy/MM/dd");
             }
 
-            bird = new BirdController(screenHeight / 2, refreshInterval, gravityConstant, jumpAmount);
+            bird = new BirdController(screenHeight, refreshInterval, gravityConstant, jumpAmount);
             environment = new EnvironmentController(screenWidth, screenHeight, pipeGapSize, pipePeriodLength, pipeThickness);
 
             gameTime.Start();
@@ -177,8 +195,14 @@ namespace console_flappy_bird.Logic
         {
             if (renderFlag)
             {
-                Render();
-                if (HasCollided())
+                // Try without copying and see if errors appear
+                var birdInstance = (BirdController)bird.Clone();
+                var environmentInstance = (EnvironmentController)environment.Clone();
+
+                // FIXME: Look into why the timers aren't working as they should be
+                Render(environmentInstance, birdInstance);
+
+                if (HasCollided(environmentInstance, birdInstance))
                 {
                     return false;
                 }
@@ -192,22 +216,24 @@ namespace console_flappy_bird.Logic
             return true;
         }
 
-        private void Render ()
+        private void Render (EnvironmentController environmentInstance, BirdController birdInstance)
         {
             // TODO: Call the game engine service, generate request model with environment and bird and all other necessary parameters
             // Then draw everything in this method from the returned array of chars. 
-            Console.Clear();
-            var screen = service.GetRender(environment, bird);
+            var render = service.GetRender(environmentInstance, birdInstance);
+
             for (var row = 0; row < screenHeight; row++)
             {
-                var line = screen.GetRow(row);
+                // FIXME: This returns column instead of row
+                var line = render.GetRow(row);
+                Console.SetCursorPosition(0, row);
                 Console.WriteLine(line);
             }
         }
 
-        private bool HasCollided ()
+        private bool HasCollided (EnvironmentController environmentInstance, BirdController birdInstance)
         {
-            var hasCollided = service.HasCollided(environment, bird);
+            var hasCollided = service.HasCollided(environmentInstance, birdInstance);
             return hasCollided;
         }
 
@@ -290,6 +316,30 @@ namespace console_flappy_bird.Logic
             var timeSpan = gameTime.ElapsedMilliseconds / 1000f;
             var newFrameLength = (int)(500f / (timeSpan + 1)) + refreshInterval;
             return newFrameLength;
+        }
+
+        private GameEngineServiceModel PopulateServiceModel ()
+        {
+            return new GameEngineServiceModel
+            {
+                ScreenWidth = screenWidth,
+                ScreenHeight = screenHeight,
+                CloudSymbol = cloudSymbol,
+                CloudMaxDensity = cloudMaxDensity,
+                CloudSparsingRate = cloudSparsingRate,
+                BirdUpSymbol = birdUpSymbol,
+                BirdSideSymbol = birdSideSymbol,
+                BirdDownSymbol = birdDownSymbol,
+                BirdHorizontalPosition = birdHorizontalPosition,
+                PipeLeftTopSymbol = pipeLeftTopSymbol,
+                PipeRightTopSymbol = pipeRightTopSymbol,
+                PipeLeftBottomSymbol = pipeLeftBottomSymbol,
+                PipeRightBottomSymbol = pipeRightBottomSymbol,
+                PipeHoleSymbol = pipeHoleSymbol,
+                PipeBodySymbol = pipeBodySymbol,
+                PipeThickness = pipeThickness,
+                PipeGapSize = pipeGapSize
+            };
         }
     }
 }
