@@ -26,16 +26,16 @@ namespace console_flappy_bird.Logic
             this.screenWidth = screenWidth - 1;
             this.screenHeight = screenHeight;
             maxPipes = screenWidth % periodLength == 0 ? 
-                screenWidth / periodLength : screenWidth / periodLength + 1;
+                (screenWidth / periodLength) : (screenWidth / periodLength) + 1;
             GenerateNewPipe();
         }
 
         public void Update()
         {
-            foreach (var pipe in pipes)
+            foreach (var pipe in pipes.ToList())
             {
                 pipe.HorizontalPosition--;
-                if (pipe.HorizontalPosition < 0)
+                if (pipe.HorizontalPosition == screenWidth - periodLength)
                 {
                     GenerateNewPipe();
                 }
@@ -50,10 +50,13 @@ namespace console_flappy_bird.Logic
         private void GenerateNewPipe()
         {
             var pipe = new PipeColumn();
-            if (pipes.Count == maxPipes)
+            
+            if (pipes.Count > maxPipes && 
+                pipes.Peek().HorizontalPosition < 0 - thickness)
             {
                 pipe = pipes.Dequeue();
             }
+
             ConfigureNewPipe(pipe);
             pipes.Enqueue(pipe);
         }
@@ -62,6 +65,11 @@ namespace console_flappy_bird.Logic
         {
             pipe.HorizontalPosition = screenWidth;
             pipe.GapStart = random.Next(screenHeight - gapSize);
+
+            if (pipes.Count > 0 && pipes.Peek().GapStart == pipe.GapStart)
+            {
+                pipe.GapStart = random.Next(screenHeight - gapSize);
+            }
         }
 
         public object Clone()
@@ -73,7 +81,7 @@ namespace console_flappy_bird.Logic
         private EnvironmentController(Queue<PipeColumn> pipes, int maxPipes, int screenWidth, int screenHeight, int gapSize, int periodLength, int thickness)
         {
             this.pipes = new Queue<PipeColumn>();
-            foreach (var pipe in pipes)
+            foreach (var pipe in pipes.ToList())
             {
                 this.pipes.Enqueue(pipe);
             }

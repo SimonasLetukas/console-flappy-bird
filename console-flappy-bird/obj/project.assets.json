@@ -207,6 +207,15 @@
         "build": {
           "build/netstandard2.0/NETStandard.Library.targets": {}
         }
+      },
+      "Pastel/1.3.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/Pastel.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Pastel.dll": {}
+        }
       }
     }
   },
@@ -678,11 +687,26 @@
         "netstandard.library.2.0.3.nupkg.sha512",
         "netstandard.library.nuspec"
       ]
+    },
+    "Pastel/1.3.1": {
+      "sha512": "ITPnBIIFkH9pvui1CTFOkarQivGaqo26V23B+54JNHUdZ/wMIm5vHbPk+XvsU6NscWOOhNUjOceetW201CchAw==",
+      "type": "package",
+      "path": "pastel/1.3.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "lib/netstandard2.0/Pastel.dll",
+        "lib/netstandard2.0/Pastel.xml",
+        "pastel.1.3.1.nupkg.sha512",
+        "pastel.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v2.2": [
-      "Microsoft.NETCore.App >= 2.2.0"
+      "Microsoft.NETCore.App >= 2.2.0",
+      "Pastel >= 1.3.1"
     ]
   },
   "packageFolders": {
@@ -732,6 +756,10 @@
             "target": "Package",
             "version": "[2.2.0, )",
             "autoReferenced": true
+          },
+          "Pastel": {
+            "target": "Package",
+            "version": "[1.3.1, )"
           }
         },
         "imports": [

@@ -1,33 +1,23 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace console_flappy_bird.Extensions
 {
     public static class ArrayExtension
     {
-        public static T[] GetRow<T>(this T[,] array, int row)
+        public static T[] GetColumn<T>(this T[,] matrix, int columnNumber)
         {
-            if (!typeof(T).IsPrimitive)
-                throw new InvalidOperationException("Not supported for managed types.");
+            return Enumerable.Range(0, matrix.GetLength(0))
+                    .Select(x => matrix[x, columnNumber])
+                    .ToArray();
+        }
 
-            if (array == null)
-                throw new ArgumentNullException("array");
-
-            int cols = array.GetUpperBound(1) + 1;
-            T[] result = new T[cols];
-
-            int size;
-
-            if (typeof(T) == typeof(bool))
-                size = 1;
-            else if (typeof(T) == typeof(char))
-                size = 2;
-            else
-                size = Marshal.SizeOf<T>();
-
-            Buffer.BlockCopy(array, row * cols * size, result, 0, cols * size);
-
-            return result;
+        public static T[] GetRow<T>(this T[,] matrix, int rowNumber)
+        {
+            return Enumerable.Range(0, matrix.GetLength(1))
+                    .Select(x => matrix[rowNumber, x])
+                    .ToArray();
         }
     }
 }

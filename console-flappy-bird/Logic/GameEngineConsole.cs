@@ -1,8 +1,10 @@
-﻿using console_flappy_bird.Extensions;
-using console_flappy_bird.Interfaces;
+﻿using console_flappy_bird.Interfaces;
 using console_flappy_bird.Models;
+using Pastel;
 using System;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 using System.Timers;
 
 namespace console_flappy_bird.Logic
@@ -15,22 +17,22 @@ namespace console_flappy_bird.Logic
         const int screenHeight = 15;
         const int refreshInterval = 100;
 
-        const int pipeGapSize = 5;
-        const int pipePeriodLength = 10;
-        const int pipeThickness = 2;
-        const char pipeLeftTopSymbol = '⌊';
-        const char pipeRightTopSymbol = '⌋';
-        const char pipeLeftBottomSymbol = '⌈';
-        const char pipeRightBottomSymbol = '⌉';
+        const int pipeGapSize = 7;
+        const int pipePeriodLength = 15;
+        const int pipeThickness = 6;
+        const char pipeLeftTopSymbol = '└';
+        const char pipeRightTopSymbol = '┘';
+        const char pipeLeftBottomSymbol = '┌';
+        const char pipeRightBottomSymbol = '┐';
         const char pipeHoleSymbol = '=';
-        const char pipeBodySymbol = '|';
+        const char pipeBodySymbol = '│';
 
-        const int cloudSparsingRate = 10;
-        const int cloudMaxDensity = 5;
+        const int cloudSparsingRate = 20;
+        const int cloudMaxDensity = 25;
         const char cloudSymbol = '~';
 
-        const int gravityConstant = 10;
-        const int jumpAmount = 15;
+        const int gravityConstant = 8;
+        const int jumpAmount = 4;
         const int birdHorizontalPosition = 5;
         const char birdUpSymbol = '^';
         const char birdSideSymbol = '>';
@@ -48,6 +50,8 @@ namespace console_flappy_bird.Logic
         Random random;
         Timer fixedUpdate;
         Timer acceleratedUpdate;
+        object fixedUpdateLock;
+        object acceleratedUpdateLock;
         Stopwatch gameTime;
         BirdController bird;
         EnvironmentController environment;
@@ -61,7 +65,6 @@ namespace console_flappy_bird.Logic
             retry:
             while (UpdateGame())
             {
-                acceleratedUpdate.Interval = GetFrameLength();
             }
 
             DisplayEndMenu();
@@ -83,6 +86,8 @@ namespace console_flappy_bird.Logic
             renderFlag = true;
             random = new Random();
             gameTime = new Stopwatch();
+            fixedUpdateLock = new object();
+            acceleratedUpdateLock = new object();
 
             var serviceModel = PopulateServiceModel();
             service = new GameEngineService(serviceModel);
@@ -189,6 +194,9 @@ namespace console_flappy_bird.Logic
 
             fixedUpdate.AutoReset = true;
             acceleratedUpdate.AutoReset = true;
+
+            fixedUpdate.Enabled = true;
+            acceleratedUpdate.Enabled = true;
         }
 
         private bool UpdateGame ()
@@ -196,13 +204,12 @@ namespace console_flappy_bird.Logic
             if (renderFlag)
             {
                 // Try without copying and see if errors appear
-                var birdInstance = (BirdController)bird.Clone();
-                var environmentInstance = (EnvironmentController)environment.Clone();
+                //var environmentInstance = (EnvironmentController)environment.Clone();
+                //var birdInstance = (BirdController)bird.Clone();
 
-                // FIXME: Look into why the timers aren't working as they should be
-                Render(environmentInstance, birdInstance);
+                Render(environment, bird);
 
-                if (HasCollided(environmentInstance, birdInstance))
+                if (HasCollided(environment, bird))
                 {
                     return false;
                 }
@@ -218,16 +225,39 @@ namespace console_flappy_bird.Logic
 
         private void Render (EnvironmentController environmentInstance, BirdController birdInstance)
         {
-            // TODO: Call the game engine service, generate request model with environment and bird and all other necessary parameters
-            // Then draw everything in this method from the returned array of chars. 
             var render = service.GetRender(environmentInstance, birdInstance);
+            var line = new (Color color, string value)[screenWidth];
 
-            for (var row = 0; row < screenHeight; row++)
+            for (var y = 0; y < screenHeight; y++)
             {
-                // FIXME: This returns column instead of row
-                var line = render.GetRow(row);
-                Console.SetCursorPosition(0, row);
-                Console.WriteLine(line);
+                Console.SetCursorPosition(0, y);
+                for (var x = 0; x < screenWidth; x++)
+                {
+                    line[x] = (GetColorForSymbol(render[x, y]), render[x, y].ToString());
+                }
+                Console.Write(string.Join(string.Empty, line.Select(s => s.value.Pastel(s.color))));
+            }
+        }
+
+        private Color GetColorForSymbol (char value)
+        {
+            switch (value)
+            {
+                case pipeBodySymbol:
+                case pipeHoleSymbol:
+                case pipeLeftBottomSymbol:
+                case pipeLeftTopSymbol:
+                case pipeRightBottomSymbol:
+                case pipeRightTopSymbol:
+                    return Color.Green;
+
+                case birdUpSymbol:
+                case birdDownSymbol:
+                case birdSideSymbol:
+                    return Color.Red;
+
+                default:
+                    return Color.Teal;
             }
         }
 
@@ -250,14 +280,35 @@ namespace console_flappy_bird.Logic
 
         private void OnFixedUpdate (object sender, EventArgs args)
         {
-            bird.Update(flyUpFlag);
-            renderFlag = true;
+            if (System.Threading.Monitor.TryEnter(fixedUpdateLock))
+            {
+                try
+                {
+                    bird.Update(flyUpFlag);
+                    renderFlag = true;
+                    flyUpFlag = false;
+                }
+                finally
+                {
+                    System.Threading.Monitor.Exit(fixedUpdateLock);
+                }
+            }
         }
 
         private void OnUpdate (object sender, EventArgs args)
         {
-            environment.Update();
-            renderFlag = true;
+              if (System.Threading.Monitor.TryEnter(acceleratedUpdateLock))
+            {
+                try
+                {
+                    acceleratedUpdate.Interval = GetFrameLength();
+                    environment.Update();
+                }
+                finally
+                {
+                    System.Threading.Monitor.Exit(acceleratedUpdateLock);
+                }
+            }
         }
 
         private void DisplayEndMenu ()
@@ -314,7 +365,7 @@ namespace console_flappy_bird.Logic
         private int GetFrameLength ()
         {
             var timeSpan = gameTime.ElapsedMilliseconds / 1000f;
-            var newFrameLength = (int)(500f / (timeSpan + 1)) + refreshInterval;
+            var newFrameLength = (int)(600f / (timeSpan + 1)) + refreshInterval;
             return newFrameLength;
         }
 

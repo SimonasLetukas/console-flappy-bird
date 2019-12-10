@@ -33,8 +33,8 @@ namespace console_flappy_bird.Logic
                 bird.Velocity = jumpConstant;
             }
             var deltaTimeSecond = deltaTime / 1000f;
-            bird.Position += bird.Velocity * deltaTimeSecond;
-            Math.Clamp(bird.Position, 0, screenHeight - 1);
+            bird.Position -= bird.Velocity * deltaTimeSecond;
+            bird.Position = Math.Clamp(bird.Position, 0f, screenHeight - 1);
             bird.Velocity -= fallingConstant * deltaTimeSecond;
 
             if (bird.Velocity > 0)
