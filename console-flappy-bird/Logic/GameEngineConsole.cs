@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Timers;
+using Kažkas.gero;
 
 namespace console_flappy_bird.Logic
 {
