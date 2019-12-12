@@ -1,5 +1,4 @@
-﻿using console_flappy_bird.Interfaces;
-using console_flappy_bird.Logic;
+﻿using console_flappy_bird.Controllers;
 
 namespace console_flappy_bird
 {
@@ -7,8 +6,7 @@ namespace console_flappy_bird
     {
         static void Main(string[] args)
         {
-            IGameEngine gameEngine = new GameEngineConsole();
-            gameEngine.StartGame();
+            ConsoleController.Instance.StartGame();
         }
     }
 }
