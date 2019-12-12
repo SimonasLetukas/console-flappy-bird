@@ -1,6 +1,6 @@
 ﻿namespace console_flappy_bird.Interfaces
 {
-    interface IUpdateable
+    public interface IUpdateable
     {
         void Update(bool flag);
     }

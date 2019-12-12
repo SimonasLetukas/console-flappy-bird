@@ -66,6 +66,7 @@ namespace console_flappy_bird.Controllers
         {
             pipe.HorizontalPosition = screenWidth;
             pipe.GapStart = random.Next(screenHeight - gapSize);
+            pipe.IsScored = false;
 
             while (pipes.Count > 0 && pipes.Peek().GapStart == pipe.GapStart)
             {

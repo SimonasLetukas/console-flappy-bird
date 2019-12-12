@@ -38,17 +38,16 @@ namespace console_flappy_bird.Controllers
         private object acceleratedUpdateLock;
         private IBirdController bird;
         private IEnvironmentController environment;
-        private ConsoleService service;
+        private IConsoleService service;
 
-        public void StartGame ()
+        public void StartGame()
         {
             SetupStart();
             HandleStartMenu();
 
-            retry:
+        retry:
             while (UpdateGame())
             {
-
             }
 
             HandleEndMenu();
@@ -60,7 +59,7 @@ namespace console_flappy_bird.Controllers
             }
         }
 
-        private void SetupStart ()
+        private void SetupStart()
         {
             flyUpFlag = false;
             renderFlag = true;
@@ -70,11 +69,11 @@ namespace console_flappy_bird.Controllers
             service = new ConsoleService();
         }
 
-        private void HandleStartMenu ()
+        private void HandleStartMenu()
         {
             service.DisplayStartMenu();
 
-            while(true)
+            while (true)
             {
                 var keypress = Console.ReadKey(true);
 
@@ -95,12 +94,12 @@ namespace console_flappy_bird.Controllers
                     if (service.TryDeleteUsername())
                         continue;
                 }
-                
+
                 service.TryAddCharToUsername(keypress.KeyChar);
             }
         }
 
-        private void InitiateGame ()
+        private void InitiateGame()
         {
             service.InitiateNewGame();
 
@@ -131,14 +130,17 @@ namespace console_flappy_bird.Controllers
             acceleratedUpdate.Enabled = true;
         }
 
-        private bool UpdateGame ()
+        private bool UpdateGame()
         {
             if (renderFlag)
             {
+                UpdateScore();
+
                 var environmentInstance = GetEnvironmentControllerInstance();
                 var birdInstance = (IBirdController)bird.Clone();
 
                 service.Render(environmentInstance, birdInstance);
+                service.DisplayScore(birdInstance);
 
                 if (service.HasCollided(environmentInstance, birdInstance))
                 {
@@ -152,6 +154,23 @@ namespace console_flappy_bird.Controllers
                 HandleInput();
             }
             return true;
+        }
+
+        private void UpdateScore()
+        {
+            if (System.Threading.Monitor.TryEnter(acceleratedUpdateLock))
+            {
+                try
+                {
+                    service.UpdateScore(environment, bird);
+                    return;
+                }
+                finally
+                {
+                    System.Threading.Monitor.Exit(acceleratedUpdateLock);
+                }
+            }
+            UpdateScore();
         }
 
         private IEnvironmentController GetEnvironmentControllerInstance()
@@ -170,7 +189,7 @@ namespace console_flappy_bird.Controllers
             return GetEnvironmentControllerInstance();
         }
 
-        private void HandleInput ()
+        private void HandleInput()
         {
             var keypress = Console.ReadKey(true);
             if (keypress.Key != ConsoleKey.Spacebar)
@@ -181,7 +200,7 @@ namespace console_flappy_bird.Controllers
             flyUpFlag = true;
         }
 
-        private void OnFixedUpdate (object sender, EventArgs args)
+        private void OnFixedUpdate(object sender, EventArgs args)
         {
             if (System.Threading.Monitor.TryEnter(fixedUpdateLock))
             {
@@ -198,9 +217,9 @@ namespace console_flappy_bird.Controllers
             }
         }
 
-        private void OnUpdate (object sender, EventArgs args)
+        private void OnUpdate(object sender, EventArgs args)
         {
-              if (System.Threading.Monitor.TryEnter(acceleratedUpdateLock))
+            if (System.Threading.Monitor.TryEnter(acceleratedUpdateLock))
             {
                 try
                 {
@@ -214,7 +233,7 @@ namespace console_flappy_bird.Controllers
             }
         }
 
-        private void HandleEndMenu ()
+        private void HandleEndMenu()
         {
             service.DisplayEndMenu(bird);
 

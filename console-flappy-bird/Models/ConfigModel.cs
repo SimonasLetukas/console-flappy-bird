@@ -1,6 +1,6 @@
 ﻿namespace console_flappy_bird.Models
 {
-    class ConfigModel
+    public class ConfigModel
     {
         public int MaxUsernameChars { get; set; }
         public string DefaultUsername { get; set; }

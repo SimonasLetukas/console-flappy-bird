@@ -3,12 +3,12 @@ using System;
 
 namespace console_flappy_bird.Interfaces
 {
-    interface IBirdController : IUpdateable, ICloneable
+    public interface IBirdController : IUpdateable, ICloneable
     {
         /// <summary>
         /// Adds score to the current Bird.
         /// </summary>
-        void AddScore(int score);
+        void AddScore();
 
         /// <summary>
         /// Gets the current score from Bird.

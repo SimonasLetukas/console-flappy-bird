@@ -1,6 +1,6 @@
 ﻿namespace console_flappy_bird.Models
 {
-    class BirdControllerModel
+    public class BirdControllerModel
     {
         public int ScreenHeight { get; set; }
         public int RefreshInterval { get; set; }
