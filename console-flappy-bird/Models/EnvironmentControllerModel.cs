@@ -1,6 +1,6 @@
 ﻿namespace console_flappy_bird.Models
 {
-    class EnvironmentControllerModel
+    public class EnvironmentControllerModel
     {
         public int ScreenWidth { get; set; }
         public int ScreenHeight { get; set; }

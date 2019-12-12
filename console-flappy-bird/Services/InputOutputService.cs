@@ -3,7 +3,7 @@ using System.IO;
 
 namespace console_flappy_bird.Services
 {
-    class InputOutputService
+    public class InputOutputService
     {
         public static void Save(object value, string filePath)
         {

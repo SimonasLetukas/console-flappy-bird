@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace console_flappy_bird.Services
 {
-    class ConsoleService
+    public class ConsoleService : IConsoleService
     {
         private char[,] baseRender;
         private Random random;
@@ -24,12 +24,12 @@ namespace console_flappy_bird.Services
         private string username;
         private int cursorPositionForUsername;
 
-        public ConsoleService ()
+        public ConsoleService()
         {
             SetupConsoleService();
         }
 
-        public void DisplayStartMenu ()
+        public void DisplayStartMenu()
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine(new string(' ', config.ScreenWidth / 2 - Texts.Line.Length / 2) + Texts.Line);
@@ -66,9 +66,9 @@ namespace console_flappy_bird.Services
             Console.WriteLine(new string(' ', config.ScreenWidth / 2 - Texts.Line.Length / 2) + Texts.Line);
         }
 
-        public bool TryBackspaceUsername ()
+        public bool TryBackspaceUsername()
         {
-            if (string.IsNullOrEmpty(username) && username.Length == 0)
+            if (string.IsNullOrEmpty(username))
             {
                 return false;
             }
@@ -79,9 +79,9 @@ namespace console_flappy_bird.Services
             return true;
         }
 
-        public bool TryDeleteUsername ()
+        public bool TryDeleteUsername()
         {
-            if (string.IsNullOrEmpty(username) && username.Length == 0)
+            if (string.IsNullOrEmpty(username))
             {
                 return false;
             }
@@ -92,7 +92,7 @@ namespace console_flappy_bird.Services
             return true;
         }
 
-        public bool TryAddCharToUsername (char keyChar)
+        public bool TryAddCharToUsername(char keyChar)
         {
             var isAllowedToAdd = string.IsNullOrEmpty(username) || username.Length <= config.MaxUsernameChars;
             if (!isAllowedToAdd)
@@ -106,7 +106,7 @@ namespace console_flappy_bird.Services
             return true;
         }
 
-        public void InitiateNewGame ()
+        public void InitiateNewGame()
         {
             if (string.IsNullOrEmpty(username))
             {
@@ -119,7 +119,7 @@ namespace console_flappy_bird.Services
             gameTime.Start();
         }
 
-        public BirdControllerModel GetBirdControllerModel ()
+        public BirdControllerModel GetBirdControllerModel()
         {
             var model = new BirdControllerModel
             {
@@ -144,7 +144,7 @@ namespace console_flappy_bird.Services
             return model;
         }
 
-        public int GetRefreshInterval ()
+        public int GetRefreshInterval()
         {
             return config.RefreshInterval;
         }
@@ -204,6 +204,19 @@ namespace console_flappy_bird.Services
             return false;
         }
 
+        public void UpdateScore(IEnvironmentController environment, IBirdController bird)
+        {
+            foreach (var pipe in environment.GetCurrentPipes())
+            {
+                var pipeHorizontalEndLine = pipe.HorizontalPosition + config.PipeThickness;
+
+                if (!pipe.IsScored && config.BirdHorizontalPosition == pipeHorizontalEndLine)
+                {
+                    AddScore(pipe, bird);
+                }
+            }
+        }
+
         public void DisplayEndMenu(IBirdController bird)
         {
             Console.Clear();
@@ -238,8 +251,26 @@ namespace console_flappy_bird.Services
             Console.WriteLine(new string(' ', config.ScreenWidth / 2 - Texts.Line.Length / 2) + Texts.Line);
         }
 
+        public void DisplayScore(IBirdController bird)
+        {
+            Console.SetCursorPosition((config.ScreenWidth / 2) - (Texts.YourHighscore.Length / 2), config.ScreenHeight - 1);
+            Console.Write(Texts.YourHighscore + bird.GetScore());
+        }
+
+        private void AddScore(PipeColumn pipe, IBirdController bird)
+        {
+            bird.AddScore();
+            pipe.IsScored = true;
+        }
+
         private void ExportResults(int score)
         {
+            highscore = new HighscoreModel
+            {
+                Username = username,
+                Highscore = score,
+                Date = DateTime.Now
+            };
             InputOutputService.Save(highscore, highscorePath);
         }
 
@@ -261,7 +292,7 @@ namespace console_flappy_bird.Services
             return Color.Teal;
         }
 
-        private void SetupConsoleService ()
+        private void SetupConsoleService()
         {
             random = new Random();
 
@@ -276,7 +307,7 @@ namespace console_flappy_bird.Services
             Console.Clear();
         }
 
-        private void AddEnvironmentToRender (char[,] render, IEnvironmentController environment)
+        private void AddEnvironmentToRender(char[,] render, IEnvironmentController environment)
         {
             var pipes = environment.GetCurrentPipes();
             foreach (var pipe in pipes)
@@ -285,7 +316,7 @@ namespace console_flappy_bird.Services
             }
         }
 
-        private void PlacePipe (char[,] render, PipeColumn pipe)
+        private void PlacePipe(char[,] render, PipeColumn pipe)
         {
             var horizontalOrigin = pipe.HorizontalPosition;
             var horizontalEnd = pipe.HorizontalPosition + config.PipeThickness;
@@ -314,7 +345,7 @@ namespace console_flappy_bird.Services
             }
         }
 
-        private char GetPipeSymbol (bool onTopGap, bool onBottomGap, bool onLeftSide, bool onRightSide)
+        private char GetPipeSymbol(bool onTopGap, bool onBottomGap, bool onLeftSide, bool onRightSide)
         {
             if (onTopGap)
             {
@@ -341,7 +372,7 @@ namespace console_flappy_bird.Services
             return config.PipeBodySymbol;
         }
 
-        private bool IsWithinHorizontalBounds (int x)
+        private bool IsWithinHorizontalBounds(int x)
         {
             if (x >= config.ScreenWidth || x < 0)
             {
@@ -350,7 +381,7 @@ namespace console_flappy_bird.Services
             return true;
         }
 
-        private bool IsWithinGap (int y, int pipeGapTop, int pipeGapBottom)
+        private bool IsWithinGap(int y, int pipeGapTop, int pipeGapBottom)
         {
             if (y > pipeGapTop && y < pipeGapBottom)
             {
@@ -359,14 +390,14 @@ namespace console_flappy_bird.Services
             return false;
         }
 
-        private void AddBirdToRender (char[,] render, IBirdController bird)
+        private void AddBirdToRender(char[,] render, IBirdController bird)
         {
             var x = config.BirdHorizontalPosition;
             var y = bird.GetPosition();
             render[x, y] = GetBirdSymbol(bird.GetDirection());
         }
 
-        private char GetBirdSymbol (BirdDirection direction)
+        private char GetBirdSymbol(BirdDirection direction)
         {
             switch (direction)
             {

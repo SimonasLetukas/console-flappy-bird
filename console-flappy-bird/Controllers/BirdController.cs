@@ -52,9 +52,9 @@ namespace console_flappy_bird.Controllers
             }
         }
 
-        public void AddScore (int score)
+        public void AddScore ()
         {
-            bird.Score += score;
+            bird.Score += 10;
         }
 
         public int GetScore ()

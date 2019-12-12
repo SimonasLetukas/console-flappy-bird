@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace console_flappy_bird.Interfaces
 {
-    interface IEnvironmentController : IUpdateable, ICloneable
+    public interface IEnvironmentController : IUpdateable, ICloneable
     {
         /// <summary>
         /// Gets current PipeColumn objects.
