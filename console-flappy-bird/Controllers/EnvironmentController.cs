@@ -17,7 +17,7 @@ namespace console_flappy_bird.Controllers
         private readonly int screenHeight;
         private readonly int maxPipes;
 
-        public EnvironmentController (EnvironmentControllerModel model)
+        public EnvironmentController(EnvironmentControllerModel model)
         {
             pipes = new Queue<PipeColumn>();
             random = new Random();
@@ -26,7 +26,7 @@ namespace console_flappy_bird.Controllers
             periodLength = model.PipePeriodLength;
             screenWidth = model.ScreenWidth - 1;
             screenHeight = model.ScreenHeight;
-            maxPipes = screenWidth % periodLength == 0 ? 
+            maxPipes = screenWidth % periodLength == 0 ?
                 (screenWidth / periodLength) : (screenWidth / periodLength) + 1;
             GenerateNewPipe();
         }
@@ -51,8 +51,8 @@ namespace console_flappy_bird.Controllers
         private void GenerateNewPipe()
         {
             var pipe = new PipeColumn();
-            
-            if (pipes.Count > maxPipes && 
+
+            if (pipes.Count > maxPipes &&
                 pipes.Peek().HorizontalPosition < 0 - thickness)
             {
                 pipe = pipes.Dequeue();

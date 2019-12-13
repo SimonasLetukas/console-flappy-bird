@@ -5,11 +5,6 @@ using System.Timers;
 
 namespace console_flappy_bird.Controllers
 {
-    // TODO:
-    // - Add unit tests for public service methods
-    // - Add score counting logic
-    // - Display current score in game window
-
     sealed class ConsoleController
     {
         private static readonly object singletonLock = new object();
