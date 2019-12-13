@@ -12,7 +12,7 @@ namespace console_flappy_bird.Controllers
         private readonly int jumpConstant;
         private readonly int screenHeight;
 
-        public BirdController (BirdControllerModel model)
+        public BirdController(BirdControllerModel model)
         {
             deltaTime = model.RefreshInterval;
             fallingConstant = model.GravityConstant;
@@ -27,7 +27,7 @@ namespace console_flappy_bird.Controllers
             };
         }
 
-        public void Update (bool jumpFlag)
+        public void Update(bool jumpFlag)
         {
             if (jumpFlag)
             {
@@ -52,22 +52,22 @@ namespace console_flappy_bird.Controllers
             }
         }
 
-        public void AddScore ()
+        public void AddScore()
         {
-            bird.Score += 10;
+            bird.Score += 1;
         }
 
-        public int GetScore ()
+        public int GetScore()
         {
             return bird.Score;
         }
 
-        public int GetPosition ()
+        public int GetPosition()
         {
             return (int)bird.Position;
         }
 
-        public BirdDirection GetDirection ()
+        public BirdDirection GetDirection()
         {
             return bird.Direction;
         }

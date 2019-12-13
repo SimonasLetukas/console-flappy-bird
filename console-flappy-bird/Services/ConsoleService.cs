@@ -1,7 +1,6 @@
 ﻿using console_flappy_bird.Interfaces;
 using console_flappy_bird.Models;
 using console_flappy_bird.Resources;
-using console_flappy_bird.Services;
 using Pastel;
 using System;
 using System.Diagnostics;

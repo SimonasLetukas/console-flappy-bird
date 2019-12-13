@@ -8,7 +8,7 @@ namespace console_flappy_bird.Tests
     {
         ConsoleService _consoleService;
 
-        public ConsoleServiceTests ()
+        public ConsoleServiceTests()
         {
             _consoleService = new ConsoleService();
         }
